@@ -6,6 +6,7 @@ template<typename RET, typename ...ARGS>
 class Signal{
 public:
     using FP = RET(*)(ARGS...);
+    
     RET operator ()(ARGS...args) {
         for (auto& _slot: _slots) { 
             if (_slot.first)
