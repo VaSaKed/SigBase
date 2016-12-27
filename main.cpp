@@ -6,13 +6,21 @@ template<typename RET, typename ...ARGS>
 class Signal{
 public:
     using FP = RET(*)(ARGS...);
-    RET operator ()(ARGS...args){for(auto& _slot: _slots){ if(_slot.first)
-            asm("movl %0, %%ecx"::"r"(_slot.first):"%ecx");
-        _slot.second(args...); /*RET*/ }}
-    void connectTo( FP slotFunction ){_slots.push_back({nullptr,slotFunction});}
+    RET operator ()(ARGS...args) {
+        for (auto& _slot: _slots) { 
+            if (_slot.first)
+                asm("movl %0, %%ecx"::"r"(_slot.first):"%ecx");
+            _slot.second(args...); /*RET*/ 
+        }
+    }
+    
+    void connectTo( FP slotFunction ) { _slots.push_back( {nullptr, slotFunction} ); }
+    
     template<typename _class>
     void connectTo(_class& c, RET(_class::*mfp)(ARGS...)){
-        _slots.push_back({reinterpret_cast<void*>(&c), reinterpret_cast<FP>(mfp)});}
+        _slots.push_back( {reinterpret_cast<void*>(&c), reinterpret_cast<FP>(mfp)} ); 
+    }
+        
     template<typename _functor>
     void connectTo(_functor& c ){
         connectTo(c, &_functor::operator());
